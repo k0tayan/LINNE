@@ -1,34 +1,53 @@
-/* How to Hook with Logos
-Hooks are written with syntax similar to that of an Objective-C @implementation.
-You don't need to #include <substrate.h>, it will be done automatically, as will
-the generation of a class list and an automatic constructor.
-
-%hook ClassName
-
-// Hooking a class method
-+ (id)sharedInstance {
-	return %orig;
+#import <Foundation/NSObject.h>
+@interface NLGroupMemberInviteViewController:UIView
+@property(retain, nonatomic) UIView *view;
+- (void)initButtons;
+@end
+bool flag = true;
+float y = 0;
+%hook NLGroupMemberInviteViewController
+- (void)viewDidLoad
+{
+  %orig;
+  [self initButtons];
+  UIView *ui = MSHookIvar<UIView *>(self, "_buttonsBgView");
+  CGRect dev_size = [[UIScreen mainScreen] bounds];
+  y = ui.center.y;
+  UITapGestureRecognizer *doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+  doubleTapGesture.numberOfTapsRequired = 2;
+  [self.view addGestureRecognizer:doubleTapGesture];
+  NSArray *views = [self.view subviews];
+  for(UIView *view in views)
+  {
+    NSString *class_name = NSStringFromClass([view class]);
+    if ([@"UIView" isEqualToString:class_name]) {
+      view.center = CGPointMake(dev_size.size.width/2, y);
+      view.backgroundColor = [UIColor blackColor];
+    }
+  }
 }
 
-// Hooking an instance method with an argument.
-- (void)messageName:(int)argument {
-	%log; // Write a message about this call, including its class, name and arguments, to the system log.
-
-	%orig; // Call through to the original function with its original arguments.
-	%orig(nil); // Call through to the original function with a custom argument.
-
-	// If you use %orig(), you MUST supply all arguments (except for self and _cmd, the automatically generated ones.)
+%new
+-(void)handleDoubleTap:(UIGestureRecognizer *)sender {
+  if (sender.state == UIGestureRecognizerStateEnded){
+    NSLog(@"linne");
+    NSArray *views = [self.view subviews];
+    for(UIView *view in views)
+    {
+      NSString *class_name = NSStringFromClass([view class]);
+      if ([@"UIView" isEqualToString:class_name]) {
+        if(flag){
+          CGRect dev_size = [[UIScreen mainScreen] bounds];
+          view.backgroundColor = [UIColor blackColor];
+          view.center = CGPointMake(dev_size.size.width/2, y);;
+        } else {
+          UIColor *color = [UIColor colorWithRed:0.0 green:0 blue:0 alpha:0];
+          view.backgroundColor = color;
+          view.center = CGPointMake(1000, 1000);
+        }
+      }
+    }
+  }
+  flag = !flag;
 }
-
-// Hooking an instance method with no arguments.
-- (id)noArguments {
-	%log;
-	id awesome = %orig;
-	[awesome doSomethingElse];
-
-	return awesome;
-}
-
-// Always make sure you clean up after yourself; Not doing so could have grave consequences!
 %end
-*/

@@ -1,3 +1,7 @@
+ARCHS = armv7 arm64
+TARGET = iphone:9.2:9.0
+THEOS_DEVICE_IP = 192.168.11.7
+THEOS_DEVICE_PORT = 22
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = LINNE
