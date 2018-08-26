@@ -61,7 +61,7 @@ static NSString *cmstoken = @"";
 - (id)chatID;
 @end
 
-/*%hook MessageViewController
+%hook MessageViewController
 - (void)sendMessageWithText:(NSString *)arg1 sendSingleSticonAsSticker:(_Bool)arg2 metadata:(id)arg3
 {
 	%orig;
@@ -79,7 +79,7 @@ static NSString *cmstoken = @"";
 		[self sendMessageWithText:l sendSingleSticonAsSticker:0 metadata:dic];
 	}
 }
-%end*/
+%end
 
 %hook LineOperation
 - (NSInteger)type
